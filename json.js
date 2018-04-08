@@ -1,8 +1,8 @@
 var Getter = require("./getter.js");
-const VIDEO_ID = 'MiZ8V3NHwfM';
+var VIDEO_ID = 'SDaS5VNbVOo';
 var getter = Getter(VIDEO_ID);
 var comments = 0;
-var commentObjs = [];
+var commentObjs = {};
 var votes = {
 	a: 0,
 	b: 0,
@@ -20,16 +20,6 @@ var deadlinevotes = 0;
 var commentors = {};
 var exportedjson = {};
 var fs = require("fs");
-var contestants = {
-	a: "Pen",
-	b: "Liy",
-	c: "Black Hole",
-	d: "Tree",
-	e: "Remote",
-	f: "Pie",
-	g: "Bottle",
-	h: "Pillow"
-};
 var checker = /\[([a-h])\]/gi;
 process.stdout.write("Getting comments... ");
 
@@ -60,10 +50,11 @@ getter.on('data', function (comment) {
 			totalvotes++;
 			hasVoted = true;
 			commentors[comment.authorChannelId.value] = c;
-			commentObjs.push({
-				timestamp: comment.publishedAt,
-				vote: l
-			});
+			if (commentObjs[comment.publishedAt]) {
+				commentObjs[comment.publishedAt].push(l);
+			} else {
+				commentObjs[comment.publishedAt] = [l];
+			}
 			process.stdout.write(`\x1b[92m${l}\x1b[0m`);
 		} else if (secondsAfter > 172800) {
 			deadlinevotes++;
@@ -89,17 +80,17 @@ getter.on('end', function () {
 		e: 0,
 		f: 0,
 		g: 0,
-		h: 0,
+		h: 0
 	}
-	commentObjs.sort(function(a, b) {
-		if (new Date(a.timestamp).getTime() < new Date(b.timestamp).getTime()) return -1;
-		if (new Date(a.timestamp).getTime() > new Date(b.timestamp).getTime()) return 1;
+	Object.keys(commentObjs).sort(function(a, b) {
+		if (new Date(a).getTime() < new Date(b).getTime()) return -1;
+		if (new Date(a).getTime() > new Date(b).getTime()) return 1;
 		return 0;
 	}).forEach(function(comment) {
-		currentVotes[comment.vote]++;
+		commentObjs[comment].forEach((c) => currentVotes[c]++);
 		var iHateLinks = {};
 		Object.keys(currentVotes).forEach(l => iHateLinks[l] = currentVotes[l]);
-		exportedjson[new Date(comment.timestamp).getTime() / 1000] = iHateLinks;
+		exportedjson[new Date(comment).getTime() / 1000] = iHateLinks;
 	});
 	fs.writeFileSync("./votes.json", JSON.stringify(exportedjson, null, "\t"));
 	console.log("Done!");

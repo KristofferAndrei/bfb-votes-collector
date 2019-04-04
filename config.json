@@ -1,0 +1,16 @@
+{
+	"videoID": "VIDEO ID GOES HERE",
+	"names": [
+		"Contestant",
+		"NAMES",
+		"GO",
+		"HERE"
+	],
+	"colors": [
+		"black",
+		"blue",
+		"yellow",
+		"light_yellow"
+	],
+	"deadlineAfter": 172800
+}
